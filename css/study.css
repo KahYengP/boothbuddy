@@ -1,0 +1,5 @@
+/* end screen for the A/B study. The result stays in the address bar for Loop11, not on screen */
+.study-end { max-width: 520px; margin: 60px auto; padding: 40px 36px; text-align: center; }
+.study-end .tick { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--good); color: #fff; }
+.study-end h1 { font-size: 28px; font-weight: 500; margin: 0 0 8px; }
+.study-end p { color: var(--muted); font-size: 16.5px; line-height: 1.5; margin: 0; }

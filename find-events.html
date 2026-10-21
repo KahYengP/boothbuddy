@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find Events | BoothBuddy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/find-events.css">
+</head>
+<body>
+  <div id="app-nav" data-active="find-events"></div>
+
+  <main class="page">
+
+    <!-- Greeting and count -->
+    <section class="fe-hero">
+      <div class="count-wrap">
+        <div class="count-circle glass"><span id="count-num">6</span></div>
+        <div>
+          <div class="muted-label">Events</div>
+          <div class="count-label">open for applications</div>
+        </div>
+      </div>
+      <div class="greeting">
+        <h1>Hey, Rachel!</h1>
+        <p>Let's find your next pop-up.</p>
+      </div>
+    </section>
+
+    <!-- Search, saved, filters (category, fee, location, sort), view toggle -->
+    <section class="toolbar">
+      <label class="search glass">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="search-input" type="search" placeholder="Search by event name or place" autocomplete="off">
+      </label>
+
+      <button class="btn glass-btn" id="saved-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4V4z"/></svg> Saved <span class="saved-count" id="saved-count">0</span></button>
+
+      <div class="nav-item">
+        <button class="btn glass-btn" id="filters-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg> Filters <span class="filter-count" id="filter-count" hidden>0</span></button>
+        <div class="popover popover-filters" id="filters-pop">
+          <div class="pop-head"><div class="pop-title">Filters</div><button class="pop-link" id="filters-reset">Reset</button></div>
+          <div class="field">
+            <span>Category</span>
+            <div class="fp-cats" id="cat-chips" role="group" aria-label="Category">
+              <button class="fp-cat is-active" data-cat="all">All</button>
+              <button class="fp-cat" data-cat="fnb">F&amp;B</button>
+              <button class="fp-cat" data-cat="workshop">Workshop</button>
+              <button class="fp-cat" data-cat="retail">Retail</button>
+            </div>
+          </div>
+          <label class="field">
+            <span>Booth fee up to <b id="fee-label">$450</b> per day</span>
+            <input type="range" id="fee-range" min="100" max="450" step="10" value="450" class="range">
+          </label>
+          <label class="field">
+            <span>Location</span>
+            <select class="select" id="area-select">
+              <option value="all">All of Singapore</option>
+              <option value="West">West</option>
+              <option value="Central">Central</option>
+              <option value="East">East</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Sort by</span>
+            <select class="select" id="sort-select">
+              <option value="closing">Closing soonest</option>
+              <option value="fee">Lowest booth fee</option>
+              <option value="footfall">Highest footfall</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="segmented glass" id="view-seg" aria-label="View">
+        <button class="seg-btn is-active" data-view="list" aria-label="List view"><svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="4" width="7" height="7" rx="2"/><rect x="13.5" y="4" width="7" height="7" rx="2"/><rect x="3.5" y="14" width="7" height="7" rx="2"/><rect x="13.5" y="14" width="7" height="7" rx="2"/></svg> List</button>
+        <button class="seg-btn" data-view="map" aria-label="Map view"><svg class="icon" viewBox="0 0 24 24"><path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4z"/><path d="M9 4v13.5M15 6.5V20"/></svg> Map</button>
+      </div>
+    </section>
+
+    <!-- List view -->
+    <section class="grid" id="events-grid"></section>
+    <div class="empty glass" id="empty-state" hidden>No events match your filters. Try resetting them.</div>
+
+    <!-- Map view -->
+    <section class="map-view glass" id="map-view" hidden>
+      <div class="map-list" id="map-list"></div>
+      <div class="map-box">
+        <div id="gmap"></div>
+        <div class="map-card glass" id="map-card"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Compare tray -->
+  <div class="compare-bar" id="tray" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/find-events.js"></script>
+</body>
+</html>

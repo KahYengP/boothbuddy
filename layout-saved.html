@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layout saved | BoothBuddy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    /* end screen for the A/B test task: the result stays in the address bar for Loop11, not on screen */
+    .saved { max-width: 520px; margin: 60px auto; padding: 40px 36px; text-align: center; }
+    .saved .tick { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--good); color: #fff; }
+    .saved h1 { font-size: 28px; font-weight: 500; margin: 0 0 8px; }
+    .saved p { color: var(--muted); font-size: 16.5px; line-height: 1.5; margin: 0; }
+  </style>
+</head>
+<body>
+  <div id="app-nav" data-active="my-events" data-rail="false"></div>
+  <main class="page" id="root">
+    <section class="panel glass saved">
+      <div class="tick"><svg class="icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h1>Layout saved</h1>
+      <p>Thank you. Your booth layout for Toa Payoh HDB Hub Bazaar has been saved. Please go back to the study window to answer a few short questions.</p>
+    </section>
+  </main>
+  <script src="js/data.js"></script>
+  <script src="js/data-more.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

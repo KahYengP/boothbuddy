@@ -1,0 +1,53 @@
+/* Photo viewer (js/viewer.js) */
+body.pv-open { overflow: hidden; }
+.pv { position: fixed; inset: 0; z-index: 300; display: grid; grid-template-rows: auto 1fr auto auto; background: rgba(22, 15, 28, 0.94); color: #F5EEF4; animation: pvIn 0.2s ease; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+@keyframes pvIn { from { opacity: 0; } to { opacity: 1; } }
+
+.pv-top { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
+.pv-count { font-size: 15px; font-weight: 500; padding: 6px 12px; border-radius: 99px; background: rgba(255, 255, 255, 0.1); }
+.pv-cap { flex: 1; min-width: 0; font-size: 15px; color: rgba(245, 238, 244, 0.75); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pv-tools { display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); }
+.pv-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: inherit; display: grid; place-items: center; padding: 0; cursor: pointer; }
+.pv-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+.pv-btn:disabled { opacity: 0.35; cursor: default; }
+.pv-zoom { min-width: 58px; height: 34px; border: none; border-radius: 99px; background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer; }
+.pv-zoom:hover { background: rgba(255, 255, 255, 0.14); }
+
+.pv-stage { position: relative; overflow: hidden; display: grid; place-items: center; padding: 0 84px; touch-action: none; cursor: zoom-in; }
+.pv.is-zoomed .pv-stage { cursor: grab; }
+.pv.is-zoomed .pv-stage:active { cursor: grabbing; }
+.pv-img { max-width: 100%; max-height: calc(100vh - 210px); border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); transform-origin: center center; transition: transform 0.18s ease; user-select: none; -webkit-user-select: none; }
+.pv.is-zoomed .pv-img { border-radius: 4px; }
+
+.pv-arrow { position: absolute; top: 50%; width: 56px; height: 56px; margin-top: -28px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25); display: grid; place-items: center; padding: 0; cursor: pointer;
+  background: rgba(255, 255, 255, 0.14); color: #fff; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: background 0.2s ease, transform 0.2s ease; }
+.pv-arrow:hover { background: rgba(255, 255, 255, 0.26); transform: scale(1.05); }
+.pv-arrow.prev { left: 18px; }
+.pv-arrow.next { right: 18px; }
+.pv.is-single .pv-arrow, .pv.is-single .pv-thumbs { display: none; }
+
+.pv-thumbs { display: flex; justify-content: center; gap: 10px; padding: 14px 18px 6px; overflow-x: auto; }
+.pv-thumb { width: 76px; height: 52px; flex-shrink: 0; padding: 0; border-radius: 10px; overflow: hidden; border: 2px solid transparent; background: rgba(255, 255, 255, 0.08); opacity: 0.55; cursor: pointer; transition: opacity 0.2s ease, border-color 0.2s ease; }
+.pv-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pv-thumb:hover { opacity: 0.85; }
+.pv-thumb.is-on { opacity: 1; border-color: #E9DDC5; }
+.pv-hint { margin: 0; padding: 4px 18px 14px; text-align: center; font-size: 13.5px; color: rgba(245, 238, 244, 0.55); }
+
+@media (max-width: 700px) {
+  .pv-stage { padding: 0 8px; }
+  .pv-arrow { width: 44px; height: 44px; margin-top: -22px; }
+  .pv-arrow.prev { left: 8px; }
+  .pv-arrow.next { right: 8px; }
+  .pv-cap, .pv-hint { display: none; }
+  .pv-thumb { width: 60px; height: 42px; }
+}
+
+/* venue photos on the event page open the viewer */
+.vp { position: relative; border: none; padding: 0; cursor: zoom-in; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.vp::after { content: ""; position: absolute; inset: 0; background: rgba(22, 15, 28, 0); transition: background 0.2s ease; }
+.vp:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(47, 34, 54, 0.25); }
+.vp:hover::after { background: rgba(22, 15, 28, 0.18); }
+.vp-zoom { position: absolute; right: 8px; bottom: 8px; z-index: 1; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.88); color: #2F2236; opacity: 0; transition: opacity 0.2s ease; }
+.vp:hover .vp-zoom, .vp:focus-visible .vp-zoom { opacity: 1; }
+@media (hover: none) { .vp-zoom { opacity: 1; } }
+.pv.is-drag .pv-img { transition: none; }
