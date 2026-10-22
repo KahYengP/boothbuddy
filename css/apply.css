@@ -174,3 +174,6 @@
 .booth-card .sep-note { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; }
 .ap-layout > * { min-width: 0; }
 @media (max-width: 600px) { .form-grid3 { grid-template-columns: 1fr; } }
+
+/* after submitting: only the success message, in the middle of the page */
+.ap-done-wrap { max-width: 720px; margin: 24px auto 0; }

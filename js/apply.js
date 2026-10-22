@@ -154,7 +154,7 @@ AP.render = function () {
   var sub = AP.edit ? (AP.locked() ? (AP.ev.status === "Accepted" ? "Your booking is confirmed, so this is read only." : "Applications are closed, so this is read only.") : "Change your documents, booth type or number of booths until " + BB.shortDate(AP.ev.closes) + ".") : "Upload the documents this event needs, pick your booth, then submit. You can save a draft and come back.";
   document.getElementById("root").innerHTML = '<a class="back-link" href="' + (AP.edit ? "my-events.html?event=" + AP.ev.id : "event-detail.html?event=" + AP.ev.id) + '">' + BB.icon("chevLeft", 18) + (AP.edit ? " My events" : " Back to event") + "</a>" +
     '<h1 class="page-title">' + title + '</h1><p class="page-sub">' + sub + "</p>" +
-    '<div class="ap-layout"><div>' + body + "</div>" + AP.summary() + "</div>";
+    (AP.submitted ? '<div class="ap-done-wrap">' + body + "</div>" : '<div class="ap-layout"><div>' + body + "</div>" + AP.summary() + "</div>");
   AP.wire();
   AP.fitSide();
   document.querySelectorAll(".ap-side img").forEach(function (im) { im.addEventListener("load", AP.fitSide); });

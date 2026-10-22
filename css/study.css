@@ -3,3 +3,6 @@
 .study-end .tick { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--good); color: #fff; }
 .study-end h1 { font-size: 28px; font-weight: 500; margin: 0 0 8px; }
 .study-end p { color: var(--muted); font-size: 16.5px; line-height: 1.5; margin: 0; }
+
+/* the same two buttons as the app's "Application submitted" screen */
+.study-end .end-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
