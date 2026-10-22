@@ -70,12 +70,16 @@ BB.boothPlanSvg = function (t, n) {
       out += '<g class="bp-power" transform="translate(' + x + "," + (T + 2) + ')"><rect x="-9" y="-7" width="18" height="14" rx="3"/><path d="M1 -5 L-3 1 L0 1 L-1 5 L3 -1 L0 -1 Z"/></g>';
     });
     if (u === n - 1 && t.power.length) { out += '<text class="bp-tag" x="' + (ox + uw - 0.35 * S - (t.power.length - 1) * 0.275 * S) + '" y="' + (T + 22) + '" text-anchor="middle">' + t.power.join(" + ") + "</text>"; }
-    var tw = t.tw * S, td = t.td * S, tx = ox + (uw - tw) / 2, ty = T + D - td - 0.22 * S;
+    /* workshop: class table in the middle with seats on both long sides, facing each other.
+       other booths: counter at the front with the seller's chairs behind it. */
+    var ws = t.cat === "workshop";
+    var tw = t.tw * S, td = t.td * S, tx = ox + (uw - tw) / 2, ty = ws ? T + (D - td) / 2 : T + D - td - 0.22 * S;
     out += '<rect class="bp-table" x="' + tx + '" y="' + ty + '" width="' + tw + '" height="' + td + '" rx="3"/>';
-    var row = Math.min(t.chairs, t.tw > 1.5 ? 3 : 2);
+    var row = ws ? Math.ceil(t.chairs / 2) : Math.min(t.chairs, t.tw > 1.5 ? 3 : 2);
     for (var i = 0; i < t.chairs; i++) {
       var r = Math.floor(i / row), k = i % row;
-      var cx = tx + tw * (k + 1) / (row + 1), cy = r === 0 ? ty - 0.28 * S : ty - 0.62 * S;
+      var cx = tx + tw * (k + 1) / (row + 1);
+      var cy = ws ? (r === 0 ? ty - 0.28 * S : ty + td + 0.28 * S) : (r === 0 ? ty - 0.28 * S : ty - 0.62 * S);
       out += '<circle class="bp-chair" cx="' + cx + '" cy="' + cy + '" r="' + (0.17 * S) + '"/>';
     }
   }
@@ -310,20 +314,28 @@ BB.Booth3D = {
       });
       me.frame = me.frame.concat(me.group.children.slice(lampStart));
       /* counter at the front: white base, oak top, plum runner */
-      var tw = t.tw, td = t.td, tz = D - td / 2 - 0.25;
-      me.rbox(tw, 0.7, td, 0.04, M.cloth, cx, 0.04 + 0.35, tz);
+      var ws = t.cat === "workshop";
+      var tw = t.tw, td = t.td, tz = ws ? D / 2 : D - td / 2 - 0.25;
+      if (ws) {
+        /* open class table on four legs, so people can sit on both sides */
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { me.rbox(0.05, 0.7, 0.05, 0.015, M.steel, cx + c[0] * (tw / 2 - 0.08), 0.04 + 0.35, tz + c[1] * (td / 2 - 0.08)); });
+      } else {
+        me.rbox(tw, 0.7, td, 0.04, M.cloth, cx, 0.04 + 0.35, tz);
+        me.rbox(0.28, 0.6, 0.012, 0.004, M.plum, cx, 0.04 + 0.37, tz + td / 2 + 0.006);
+      }
       me.rbox(tw + 0.06, 0.05, td + 0.06, 0.02, M.oak, cx, 0.04 + 0.725, tz);
-      me.rbox(0.28, 0.6, 0.012, 0.004, M.plum, cx, 0.04 + 0.37, tz + td / 2 + 0.006);
       me.goods(t, cx, 0.04 + 0.75, tz, M);
       /* chairs behind the counter: rounded seat on a steel stem */
-      var row = Math.min(t.chairs, tw > 1.5 ? 3 : 2);
+      /* workshop: half the seats behind the table, half in front, facing each other */
+      var row = ws ? Math.ceil(t.chairs / 2) : Math.min(t.chairs, tw > 1.5 ? 3 : 2);
       for (i = 0; i < t.chairs; i++) {
         var rr = Math.floor(i / row), k = i % row, chx = cx - tw / 2 + tw * (k + 1) / (row + 1);
-        var chz = tz - td / 2 - (rr === 0 ? 0.33 : 0.82);
+        var face = ws && rr === 1 ? -1 : 1;  /* -1 = in front of the table, facing back */
+        var chz = face === -1 ? tz + td / 2 + 0.33 : tz - td / 2 - (rr === 0 ? 0.33 : 0.82);
         me.cyl(0.16, 0.17, 0.02, M.steel, chx, 0.05, chz);
         me.cyl(0.02, 0.02, 0.4, M.steel, chx, 0.25, chz, 10);
         me.rbox(0.38, 0.07, 0.36, 0.035, M.seat, chx, 0.47, chz);
-        var back = me.rbox(0.36, 0.3, 0.06, 0.03, M.seat, chx, 0.65, chz - 0.17); back.rotation.x = -0.12;
+        var back = me.rbox(0.36, 0.3, 0.06, 0.03, M.seat, chx, 0.65, chz - 0.17 * face); back.rotation.x = -0.12 * face;
       }
       /* sink cabinet and water point at the back left */
       if (t.sink) {
