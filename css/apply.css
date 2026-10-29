@@ -177,3 +177,50 @@
 
 /* after submitting: only the success message, in the middle of the page */
 .ap-done-wrap { max-width: 720px; margin: 24px auto 0; }
+
+/* note under Upload documents when the booth category skips the food licences */
+.up-note { display: flex; align-items: center; gap: 6px; margin: 0 0 12px; font-size: 14.5px; }
+.up-note .icon { color: var(--good); flex-shrink: 0; }
+
+/* Your booth now comes first. Upload documents follows it */
+.ap-docs { margin-top: 20px; }
+/* "You will need": the documents for the chosen booth category */
+.ap-needs { display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 14px; padding: 10px 14px; border-radius: 14px; background: var(--chip-bg); color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+.ap-needs .icon { flex-shrink: 0; margin-top: 2px; color: var(--accent); }
+
+/* Your booth: fields on the left, the chosen booth's floor plan on the right */
+.ab-grid { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 22px; align-items: start; }
+.ab-fields .form-grid3 { grid-template-columns: 1fr auto; grid-template-areas: "cat qty" "type type"; }
+.ab-fields .form-grid3 > :nth-child(1) { grid-area: cat; }
+.ab-fields .form-grid3 > :nth-child(2) { grid-area: type; }
+.ab-fields .form-grid3 > :nth-child(3) { grid-area: qty; }
+.ab-plan { display: flex; flex-direction: column; padding: 14px; border-radius: 18px; background: var(--chip-bg); }
+.ab-plan-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.ab-plan-head b { font-weight: 500; font-size: 16px; }
+.ab-plan .bx-plan { margin: 0 0 12px; }
+.ab-plan .bp-svg { display: block; width: 100%; height: auto; max-height: 220px; }
+.ab-plan .sep-note { display: flex; align-items: center; gap: 6px; margin: 6px 0 12px; font-size: 13.5px; color: var(--muted); }
+.ab-plan.is-empty { display: grid; place-items: center; align-content: center; gap: 8px; min-height: 240px; text-align: center; color: var(--muted); font-size: 14.5px; }
+.ab-plan.is-empty p { margin: 0; max-width: 200px; }
+.ab-plan.is-empty .icon { color: var(--accent); }
+/* key facts: one per line, under the plan */
+.ab-facts { display: grid; gap: 8px; margin: 0 0 2px; padding: 12px 2px 0; list-style: none; border-top: 1px solid var(--glass-border); font-size: 14.5px; }
+.ab-facts li { display: flex; align-items: center; gap: 10px; }
+.ab-facts .icon { flex-shrink: 0; color: var(--accent); }
+@media (max-width: 900px) {
+  .ab-grid { grid-template-columns: 1fr; }
+  .ab-plan .bp-svg { max-height: 260px; }
+}
+/* the plan grows to fill the card, so the card matches the height of the fields on the left */
+/* separate spots only: the card matches the height of the fields and the plans grow to fill it.
+   One booth, side by side and the empty state keep their own height */
+.ab-plan.is-apart { align-self: stretch; }
+.ab-plan.is-apart .bx-sep { flex: 1; min-height: 0; }
+.ab-plan.is-apart .ab-facts { margin-top: auto; }
+.ab-plan .bx-sep { align-items: stretch; }
+.ab-plan .bx-sep-one { display: flex; flex-direction: column; }
+.ab-plan .bx-sep-one .bp-svg { margin: auto 0; }
+/* 2 separate booths: one above the other so each plan stays big. 3 or 4: two per row */
+.ab-plan .bx-sep { grid-template-columns: 1fr; }
+.ab-plan .bx-sep:has(.bx-sep-one:nth-child(3)) { grid-template-columns: 1fr 1fr; }
+.ab-plan .bx-sep-one .bp-svg { max-height: 100px; }

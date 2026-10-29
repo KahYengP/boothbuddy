@@ -560,6 +560,15 @@ BB.docChip = function (s) {
   var icon = s.state === "ok" ? "check" : "clock";
   return '<span class="chip ' + cls + '">' + BB.icon(icon, 14) + " " + s.text + "</span>";
 };
+/* Documents depend on the booth category: food licences are only for F&B booths.
+   The organiser's list is in BB_DETAILS[id].required. Retail and workshop booths skip the food ones. */
+BB.FOOD_DOCS = ["nea", "halal"];
+BB.docsFor = function (ev, cat) {
+  var req = (BB_DETAILS[ev.id] && BB_DETAILS[ev.id].required) || [];
+  if (!cat || cat === "fnb") { return req; }
+  return req.filter(function (id) { return BB.FOOD_DOCS.indexOf(id) === -1; });
+};
+
 BB.eventDocIssues = function (ev) {
   var det = BB_DETAILS[ev.id]; var n = 0;
   if (!det) { return 0; }
@@ -608,7 +617,7 @@ BB.application = function (ev) {
   if (a && a.files) { if (!a.qty) { a.qty = 1; } return a; }
   if (!ev.status) { return null; }
   var cat = ev.cats.indexOf(BB_USER.category) !== -1 ? BB_USER.category : ev.cats[0];
-  var files = {}; (BB_DETAILS[ev.id].required || []).forEach(function (id) { files[id] = { name: id + "-rachel.pdf", size: 240000 }; });
+  var files = {}; BB.docsFor(ev, cat).forEach(function (id) { files[id] = { name: id + "-rachel.pdf", size: 240000 }; });
   var types = BB.boothTypesFor(ev, cat), regular = types.filter(function (t) { return /-regular$/.test(t.id); })[0] || types[0];
   return { category: cat, booth: regular.id, qty: 1, products: "Brownies, banana loaf, cookie boxes", agree: true, files: files, savedAt: "" };
 };

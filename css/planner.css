@@ -452,3 +452,14 @@
 .tray-more summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 14px 0 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
 .tray-more summary::-webkit-details-marker { display: none; }
 .tray-more[open] summary .icon { transform: rotate(180deg); }
+
+/* 2D plan: the aisle in front of the booth is a light walkway (not a greyed-out block),
+   with a dashed outer edge. In dark mode the walls and queue stay easy to see. */
+.plan-svg .pg-aisle { fill: rgba(231, 221, 238, 0.35); }
+.plan-svg .pg-aisle-edge { stroke: rgba(80, 60, 90, 0.3); stroke-width: 1.2; stroke-dasharray: 6 5; }
+.plan-svg .pg-aisle-label { fill: rgba(70, 46, 78, 0.6); letter-spacing: 1.5px; }
+[data-theme="dark"] .plan-svg .pg-aisle { fill: #E9E1EF; }
+[data-theme="dark"] .plan-svg .pg-aisle-edge { stroke: rgba(80, 60, 90, 0.35); }
+[data-theme="dark"] .plan-svg .pg-aisle-label { fill: rgba(70, 46, 78, 0.65); }
+[data-theme="dark"] .plan-svg .pg-wall { stroke: #CFC3DA; }
+[data-theme="dark"] .plan-svg .pg-hatch-line { stroke: #CFC3DA; }

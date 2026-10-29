@@ -1,5 +1,5 @@
 /* Community: seller-to-seller feed. Post types, Bulk Buy pools, Supplier SOS,
-   Helpful / Used this votes, follow, badges, verified tag, report. */
+   Helpful / Used this votes, follow, rank chips, report. */
 var CM = { filter: "all", q: "", composeOpen: false, qty: {}, compose: { type: "supplier", sos: false, title: "", text: "", event: 0, stars: 5, image: "" }, st: BB.read("localStorage", "bb_comm", { helpful: {}, used: {}, joined: {}, following: { daniel: true, mei: true }, posts: [], reported: {} }) };
 
 CM.save = function () { BB.write("localStorage", "bb_comm", CM.st); };
@@ -196,8 +196,8 @@ CM.postHtml = function (p) {
   var a = BB.person(p.author), tp = BB_POST_TYPES[p.type], ev = BB.eventById(p.event);
   var joined = CM.st.joined[p.id], helpful = CM.st.helpful[p.id], used = CM.st.used[p.id];
   var h = '<article class="post glass' + (p.type === "sos" ? " is-sos" : "") + '" data-post="' + p.id + '"><div class="post-head">' + CM.avatar(a) +
-    '<div class="who"><div class="who-line"><b>' + a.name + "</b>" + (a.verified ? '<span class="verified" title="Verified vendor">' + BB.icon("check") + "</span>" : "") +
-      (a.badge ? '<span class="rank-chip">' + BB.icon("award", 12) + a.badge + "</span>" : "") +
+    '<div class="who"><div class="who-line"><b>' + a.name + "</b>" +
+      (a.badge && a.badge !== "Verified" ? '<span class="rank-chip">' + BB.icon("award", 12) + a.badge + "</span>" : "") +
       (a.id !== "rachel" ? '<button class="follow-mini' + (CM.st.following[a.id] ? " on" : "") + '" data-follow="' + a.id + '">' + (CM.st.following[a.id] ? BB.icon("check", 12) + "Following" : BB.icon("plus", 12) + "Follow") + "</button>" : "") + "</div>" +
     '<small>' + a.biz + " · " + p.time + "</small></div>" +
     '<span class="type-tag t-' + p.type + '">' + BB.icon(tp.icon, 14) + tp.label + "</span></div>" +
@@ -239,18 +239,17 @@ CM.bulkHtml = function (p, a) {
 CM.peopleHtml = function (people) {
   if (!people.length) { return ""; }
   return '<div class="panel glass people-hits"><div class="section-title" style="font-size:17px"><span>Sellers</span></div>' + people.map(function (u) {
-    return '<div class="person">' + CM.avatar(u) + '<div class="who">' + u.name + (u.verified ? '<span class="verified">' + BB.icon("check") + "</span>" : "") + "<small>" + u.biz + " · " + (u.badge || "Beginner") + '</small></div><button class="abtn" data-follow="' + u.id + '">' + (CM.st.following[u.id] ? "Following" : "Follow") + "</button></div>";
+    return '<div class="person">' + CM.avatar(u) + '<div class="who">' + u.name + "<small>" + u.biz + " · " + (u.badge || "Beginner") + '</small></div><button class="abtn" data-follow="' + u.id + '">' + (CM.st.following[u.id] ? "Following" : "Follow") + "</button></div>";
   }).join("") + "</div>";
 };
 
 CM.side = function () {
   var following = BB_PEOPLE.filter(function (p) { return p.id !== "rachel" && CM.st.following[p.id]; });
   var suggest = BB_PEOPLE.filter(function (p) { return p.id !== "rachel" && !CM.st.following[p.id]; });
-  var row = function (p, on) { return '<div class="person">' + CM.avatar(p) + '<div class="who">' + p.name + (p.verified ? '<span class="verified">' + BB.icon("check") + "</span>" : "") + "<small>" + p.biz + '</small></div><button class="abtn" data-follow="' + p.id + '">' + (on ? "Following" : "Follow") + "</button></div>"; };
+  var row = function (p, on) { return '<div class="person">' + CM.avatar(p) + '<div class="who">' + p.name + "<small>" + p.biz + '</small></div><button class="abtn" data-follow="' + p.id + '">' + (on ? "Following" : "Follow") + "</button></div>"; };
   return '<div class="panel glass"><div class="section-title">Your community</div><div class="stat3"><div><b>' + (24) + "</b><small>Followers</small></div><div><b>" + (16 + following.length) + "</b><small>Following</small></div><div><b>6</b><small>Reviews</small></div></div></div>" +
     '<div class="panel glass"><div class="section-title">Following</div>' + (following.map(function (p) { return row(p, true); }).join("") || '<p class="muted">Follow sellers to see them here.</p>') + "</div>" +
-    (suggest.length ? '<div class="panel glass"><div class="section-title">People to follow</div>' + suggest.map(function (p) { return row(p, false); }).join("") + "</div>" : "") +
-    '<div class="panel glass"><div class="section-title">How trust works</div><ul class="how" style="padding-left:18px;margin:0"><li><b>Beginner</b>: new to BoothBuddy, fewer than 3 events.</li><li><b>Expert</b>: 5 or more events and helpful tips other sellers use.</li><li><b>Verified</b>: business registration checked by BoothBuddy.</li><li><b>Helpful votes</b> from other sellers move you up a rank.</li></ul></div>';
+    (suggest.length ? '<div class="panel glass"><div class="section-title">People to follow</div>' + suggest.map(function (p) { return row(p, false); }).join("") + "</div>" : "");
 };
 
 CM.render = function () {

@@ -1,9 +1,10 @@
 /* Apply Events: one page.
-   1. Upload each required document (just the file, no expiry dates)
-   2. Your booth: category, booth type, number of booths, what you sell
+   1. Your booth: category, booth type, number of booths, what you sell
+      (the category decides which documents are needed, so it comes first)
+   2. Upload each required document for that category (just the file, no expiry dates)
    3. Things to note, then confirm and submit
    Contact organiser (email) sits on the payment card
-   Right side: total payment breakdown, then the chosen booth's 2D plan and amenities.
+   Your booth shows the chosen booth's 2D plan beside the fields. Right side: the payment breakdown only.
    Save draft keeps everything in the browser.
    If you already applied, the same page opens in edit mode until applications close. */
 var AP = { ev: null, det: null, submitted: false, form: null, edit: false };
@@ -13,16 +14,19 @@ AP.key = function () { return "bb_apply_" + AP.ev.id; };
 
 AP.type = function () { return BB.boothType(AP.form.booth); };
 AP.q = function () { return BB.quote(AP.ev, AP.type() ? AP.form.booth : BB.boothTypesFor(AP.ev, AP.form.category)[0].id, AP.form.qty); };
-AP.uploaded = function () { return AP.det.required.filter(function (id) { return AP.form.files[id]; }).length; };
-AP.missing = function () { return AP.det.required.length - AP.uploaded(); };
+/* the documents for the chosen booth category (no food licences for retail or workshop) */
+AP.docs = function () { return BB.docsFor(AP.ev, AP.form.category); };
+AP.uploaded = function () { return AP.docs().filter(function (id) { return AP.form.files[id]; }).length; };
+AP.missing = function () { return AP.docs().length - AP.uploaded(); };
 AP.ready = function () { return !AP.missing() && AP.type() && AP.form.agree && !AP.locked(); };
 AP.locked = function () { return AP.edit && !BB.canEdit(AP.ev); };
 AP.size = function (n) { return n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB"; };
 
-/* ---------- 1. Documents: one upload per required document ---------- */
+/* ---------- 2. Documents: one upload per document this booth category needs ---------- */
 AP.docPanel = function () {
-  var n = AP.uploaded(), total = AP.det.required.length, lock = AP.locked();
-  var rows = AP.det.required.map(function (id) {
+  var docs = AP.docs(), n = AP.uploaded(), total = docs.length, lock = AP.locked();
+  var skipped = AP.det.required.filter(function (id) { return docs.indexOf(id) === -1; }).map(function (id) { return BB_DOC_NAMES[id]; }), cat = BB_CATS[AP.form.category];
+  var rows = docs.map(function (id) {
     var f = AP.form.files[id];
     if (f) {
       return '<div class="up-row is-done"><span class="up-ic">' + BB.icon("check", 18) + '</span><div class="up-txt"><b>' + BB_DOC_NAMES[id] + "</b><small>" + BB.escape(f.name) + " · " + AP.size(f.size) + "</small></div>" +
@@ -32,8 +36,9 @@ AP.docPanel = function () {
     return '<label class="up-row up-drop" data-drop="' + id + '"><span class="up-ic">' + BB.icon("file", 18) + '</span><div class="up-txt"><b>' + BB_DOC_NAMES[id] + "</b><small>PDF, JPG or PNG · drop a file here or browse</small></div>" +
       '<span class="btn btn-small btn-primary">' + BB.icon("upload", 15) + ' Upload</span><input type="file" data-file="' + id + '" accept=".pdf,.jpg,.jpeg,.png" hidden></label>';
   }).join("");
-  return '<div class="panel glass ap-first"><div class="section-title"><span>Upload documents</span><span class="chip' + (n === total ? " chip-good" : "") + '">' + n + " of " + total + " uploaded</span></div>" +
-    '<div class="up-bar"><i style="width:' + (n / total * 100) + '%"></i></div>' + rows + "</div>";
+  return '<div class="panel glass ap-docs"><div class="section-title"><span>Upload documents</span><span class="chip' + (n === total ? " chip-good" : "") + '">' + n + " of " + total + " uploaded</span></div>" +
+    '<div class="up-bar"><i style="width:' + (total ? n / total * 100 : 100) + '%"></i></div>' +
+    (skipped.length && cat ? '<p class="muted up-note">' + BB.icon("check", 14) + " " + cat.label + " booths do not need the " + skipped.join(" or ") + ".</p>" : "") + rows + "</div>";
 };
 
 /* ---------- Things to note (organiser rules and cancellation policy) ---------- */
@@ -42,27 +47,36 @@ AP.notePanel = function () {
     '<p class="muted note-lead">' + BB.icon("sparkle", 14) + " Sellers are encouraged to decorate their booth.</p>" + BB.policyHtml() + "</details>";
 };
 
-/* ---------- 2. Your booth (shown above Things to note) ---------- */
+/* ---------- 1. Your booth (first, because the category decides the documents) ---------- */
 AP.boothPanel = function () {
   var ev = AP.ev, types = BB.boothTypesFor(ev, AP.form.category), lock = AP.locked() ? " disabled" : "";
   var cats = ev.cats.map(function (c) { return '<option value="' + c + '"' + (AP.form.category === c ? " selected" : "") + ">" + BB_CATS[c].label + "</option>"; }).join("");
   var opts = '<option value="">Choose a booth type</option>' + types.map(function (t) { return '<option value="' + t.id + '"' + (AP.form.booth === t.id ? " selected" : "") + ">" + t.label + " · " + t.w + "m x " + t.d + "m · $" + BB.boothPrice(ev, t.id) + "/day</option>"; }).join("");
   var qty = '<div class="field"><span>Number of booths</span><div class="qty"><button type="button" data-qty="-1"' + (AP.form.qty <= 1 || lock ? " disabled" : "") + ' aria-label="Fewer booths">' + BB.icon("minus", 16) + "</button><b>" + AP.form.qty + '</b><button type="button" data-qty="1"' + (AP.form.qty >= BB.MAX_BOOTHS || lock ? " disabled" : "") + ' aria-label="More booths">' + BB.icon("plus", 16) + "</button></div><small class=\"muted\">Up to " + BB.MAX_BOOTHS + " per seller</small></div>";
-  return '<div class="panel glass" style="margin-top:20px"><div class="section-title">Your booth</div>' +
+  return '<div class="panel glass ap-first"><div class="section-title">Your booth</div><div class="ab-grid"><div class="ab-fields">' +
     '<div class="form-grid3"><label class="field"><span>Booth category</span><select class="select" id="f-cat"' + lock + ">" + cats + "</select></label>" +
     '<label class="field"><span>Booth type</span><select class="select" id="f-booth"' + lock + ">" + opts + "</select></label>" + qty + "</div>" +
+    AP.needsHtml() +
     AP.placeHtml(lock) +
-    '<label class="field" style="margin-bottom:0"><span>What will you sell? Add prices if you can.</span><textarea class="input" id="f-prod" rows="3"' + lock + ' placeholder="e.g. Brownies $4, banana loaf $9, cookie boxes $12">' + BB.escape(AP.form.products) + "</textarea></label></div>";
+    '<label class="field" style="margin-bottom:0"><span>What will you sell? Add prices if you can.</span><textarea class="input" id="f-prod" rows="3"' + lock + ' placeholder="e.g. Brownies $4, banana loaf $9, cookie boxes $12">' + BB.escape(AP.form.products) + "</textarea></label></div>" + AP.boothPlan() + "</div></div>";
+};
+
+/* "You'll need": the documents for the chosen category, so sellers know what to prepare before they reach the upload */
+AP.needsHtml = function () {
+  var docs = AP.docs(), cat = BB_CATS[AP.form.category], names = docs.map(function (id) { return BB_DOC_NAMES[id]; });
+  if (!docs.length || !cat) { return ""; }
+  var list = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0];
+  return '<p class="ap-needs">' + BB.icon("file", 15) + "<span>For " + (/^([AEIOU]|F&)/.test(cat.label) ? "an " : "a ") + cat.label + " booth you will need " + docs.length + " document" + (docs.length > 1 ? "s" : "") + ": " + list + ". You upload them below.</span></p>";
 };
 
 /* How more than one booth is placed. Only shown once there are 2 or more booths. */
 AP.placeHtml = function (lock) {
   var n = AP.form.qty, off = lock ? " disabled" : "", t = AP.type();
   if (n < 2) { return ""; }
-  var joined = t ? t.w * n + "m x " + t.d + "m" : "one wide";
+  var joined = t ? t.w * n + "m x " + t.d + "m " : "";
   return '<div class="place"><span class="place-lbl">How should your ' + n + " booths be placed?</span>" +
     '<div class="place-opts">' +
-      '<button type="button" class="place-opt' + (AP.form.together ? " is-on" : "") + '" data-together="1"' + off + '><span class="po-ic">' + BB.icon("booth", 18) + "</span><span><b>Side by side</b><small>Joined into one " + joined + " space, panels between them removed</small></span></button>" +
+      '<button type="button" class="place-opt' + (AP.form.together ? " is-on" : "") + '" data-together="1"' + off + '><span class="po-ic">' + BB.icon("booth", 18) + "</span><span><b>Side by side</b><small>Joined into one " + joined + "space, panels between them removed</small></span></button>" +
       '<button type="button" class="place-opt' + (AP.form.together ? "" : " is-on") + '" data-together="0"' + off + '><span class="po-ic">' + BB.icon("map", 18) + "</span><span><b>Separate spots</b><small>Fine to be apart, the organiser places each one where there is room</small></span></button></div>" +
     '<p class="place-note">' + BB.icon("clock", 13) + (AP.form.together ? " The organiser will keep them together. If the row is full, they will message you before placing them apart." : " You may get different booth numbers, even in different rows.") + "</p></div>";
 };
@@ -126,8 +140,9 @@ AP.payCard = function () {
     '<p class="pay-note">' + BB.icon("clock", 14) + " Pay after you are accepted. Applications close " + BB.shortDate(ev.closes) + ".</p></div>";
 };
 
-AP.summary = function () {
-  var ev = AP.ev, t = AP.type();
+AP.boothPlan = function () {
+  var t = AP.type();
+  if (!t) { return '<div class="ab-plan is-empty">' + BB.icon("booth", 26) + "<p>Pick a booth type to see its floor plan.</p></div>"; }
   var n = AP.form.qty, apart = n > 1 && !AP.form.together, plan;
   if (t && apart) {
     plan = '<div class="bx-sep">' + Array.apply(null, Array(n)).map(function (x, i) { return '<div class="bx-sep-one"><small>Booth ' + (i + 1) + "</small>" + BB.boothPlanSvg(t, 1) + "</div>"; }).join("") + "</div>" +
@@ -135,11 +150,18 @@ AP.summary = function () {
   } else if (t) {
     plan = '<div class="bx-plan">' + BB.boothPlanSvg(t, n > 1 ? n : 1) + "</div>";
   }
-  var booth = t ? '<div class="sum-card glass booth-card"><div class="section-title" style="font-size:17px"><span>' + t.label + '</span><span class="chip">' + (n > 1 ? (apart ? n + " x " + t.w + "m x " + t.d + "m" : t.w * n + "m x " + t.d + "m · " + n + " joined") : t.w + "m x " + t.d + "m") + "</span></div>" +
-      plan + BB.amenityHtml(t, true) +
-      '<a class="link-btn" style="padding:0;margin-top:12px;display:inline-block;font-size:14.5px" href="event-detail.html?event=' + ev.id + "&booth=" + t.id + '">See it in 3D</a></div>'
-    : '<div class="sum-card glass booth-card empty">' + BB.icon("booth", 28) + "<p>Choose a booth type to see its floor plan and what comes with it.</p></div>";
-  return '<aside class="ap-side">' + AP.payCard() + booth + "</aside>";
+  var size = n > 1 ? (apart ? n + " x " + t.w + "m x " + t.d + "m" : t.w * n + "m x " + t.d + "m · " + n + " joined") : t.w + "m x " + t.d + "m";
+  /* a few key facts instead of the full amenities list */
+  var facts = [["chair", t.chairs + " chairs"], ["table", "Table " + t.table], ["plug", t.power.length ? t.power.join(" + ") + " power" : "No power point"]];
+  if (t.sink) { facts.push(["sink", "Sink and water"]); }
+  if (t.open === 2) { facts.push(["corner", "Open on 2 sides"]); }
+  return '<div class="ab-plan' + (apart ? " is-apart" : "") + '"><div class="ab-plan-head"><b>' + t.label + '</b><span class="chip">' + size + "</span></div>" + plan +
+    '<ul class="ab-facts">' + facts.map(function (f) { return "<li>" + BB.icon(f[0], 15) + "<span>" + f[1] + "</span></li>"; }).join("") + "</ul></div>";
+};
+
+/* right side: only the payment card, short enough to always fit */
+AP.summary = function () {
+  return '<aside class="ap-side">' + AP.payCard() + "</aside>";
 };
 
 AP.done = function () {
@@ -149,9 +171,9 @@ AP.done = function () {
 };
 
 AP.render = function () {
-  var body = AP.submitted ? AP.done() : AP.docPanel() + AP.boothPanel() + AP.notePanel() + AP.submitPanel();
+  var body = AP.submitted ? AP.done() : AP.boothPanel() + AP.docPanel() + AP.notePanel() + AP.submitPanel();
   var title = AP.edit ? "Your application to " + AP.ev.short : "Apply to " + AP.ev.short;
-  var sub = AP.edit ? (AP.locked() ? (AP.ev.status === "Accepted" ? "Your booking is confirmed, so this is read only." : "Applications are closed, so this is read only.") : "Change your documents, booth type or number of booths until " + BB.shortDate(AP.ev.closes) + ".") : "Upload the documents this event needs, pick your booth, then submit. You can save a draft and come back.";
+  var sub = AP.edit ? (AP.locked() ? (AP.ev.status === "Accepted" ? "Your booking is confirmed, so this is read only." : "Applications are closed, so this is read only.") : "Change your booth type, number of booths or documents until " + BB.shortDate(AP.ev.closes) + ".") : "Pick your booth, upload the documents it needs, then submit. You can save a draft and come back.";
   document.getElementById("root").innerHTML = '<a class="back-link" href="' + (AP.edit ? "my-events.html?event=" + AP.ev.id : "event-detail.html?event=" + AP.ev.id) + '">' + BB.icon("chevLeft", 18) + (AP.edit ? " My events" : " Back to event") + "</a>" +
     '<h1 class="page-title">' + title + '</h1><p class="page-sub">' + sub + "</p>" +
     (AP.submitted ? '<div class="ap-done-wrap">' + body + "</div>" : '<div class="ap-layout"><div>' + body + "</div>" + AP.summary() + "</div>");

@@ -325,3 +325,6 @@
 .booth-x .bx-col.buy .bx-apply { margin-top: auto; }
 @media (max-width: 1200px) { .booth-x .bx-body { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } }
 @media (max-width: 700px) { .booth-x .bx-body { grid-template-columns: 1fr; } .booth-x .bx-3d { min-height: 300px; } }
+
+/* "F&B only" tag on documents that only food booths need */
+.req-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 99px; font-style: normal; font-size: 12px; font-weight: 500; background: var(--chip-bg); color: var(--muted); vertical-align: 2px; }

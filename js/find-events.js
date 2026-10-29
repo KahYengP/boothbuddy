@@ -89,7 +89,6 @@ FE.flagsHtml = function (ev) {
       html += '<button class="add-dl" data-adddl="' + ev.id + '">' + BB.icon("plus", 14) + " Add to deadlines</button>";
     }
   }
-  if (ev.visited) { html += '<span class="chip">Visited before</span>'; }
   return html;
 };
 
@@ -110,8 +109,7 @@ FE.cardHtml = function (ev) {
     '<div class="card-body">' +
       "<h3>" + ev.name + "</h3>" +
       '<div class="card-meta">' + BB.icon("pin") + "<span>" + ev.venue + " · " + ev.dates + "</span></div>" +
-      '<div class="card-stats"><div class="stat"><b><small class="from">From </small>$' + BB.priceFrom(ev) + "<small>/day</small></b><span>Booth fee</span></div>" +
-      '<div class="stat"><b>' + FE.formatFootfall(ev.footfall) + "<small>/day</small></b><span>Expected footfall</span></div></div>" +
+      '<div class="card-stats"><div class="stat"><b><small class="from">From </small>$' + BB.priceFrom(ev) + "<small>/day</small></b><span>Booth fee</span></div></div>" +
       '<div class="card-flags">' + FE.flagsHtml(ev) + "</div>" +
       '<div class="card-actions">' +
         '<a class="view-link" href="event-detail.html?event=' + ev.id + '">View' + BB.icon("chevRight", 16) + "</a>" +
@@ -151,8 +149,7 @@ FE.renderMap = function (list) {
   card.innerHTML = '<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="chip"><span class="event-dot" style="background:' + ev.color + '"></span>' + ev.short + '</span><a class="link-btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + ev.geo.lat + "," + ev.geo.lng + '">Open in Google Maps</a></div>' +
     "<h3>" + ev.name + "</h3>" +
     '<div class="card-meta">' + BB.icon("pin") + "<span>" + ev.venue + "</span></div>" +
-    '<div class="card-stats"><div class="stat"><b><small class="from">From </small>$' + BB.priceFrom(ev) + "<small>/day</small></b><span>Booth fee</span></div>" +
-    '<div class="stat"><b>' + FE.formatFootfall(ev.footfall) + "<small>/day</small></b><span>Expected footfall</span></div></div>" +
+    '<div class="card-stats"><div class="stat"><b><small class="from">From </small>$' + BB.priceFrom(ev) + "<small>/day</small></b><span>Booth fee</span></div></div>" +
     '<div class="card-actions"><a class="link-btn" href="event-detail.html?event=' + ev.id + '">View</a><span class="spacer"></span>' + FE.actionHtml(ev) + "</div>";
   if (FE.view === "map") { FE.drawGoogle(list, ev); }
 };

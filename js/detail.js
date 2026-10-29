@@ -56,7 +56,6 @@ ED.hero = function () {
     "</div>" +
     '<div class="hero-info">' +
       '<div class="row"><span class="chip"><span class="event-dot" style="background:' + ev.color + '"></span>' + ev.short + "</span>" +
-        (ev.visited ? '<span class="chip">Visited before</span>' : "") +
         (BB.daysUntil(ev.closes) <= 7 && !ev.status ? '<span class="chip chip-warm">' + BB.icon("clock", 14) + " " + BB.closingText(ev) + "</span>" : "") +
         ED.saveBtn() + "</div>" +
       "<h1>" + ev.name + "</h1>" +
@@ -124,7 +123,8 @@ ED.DOC_HINTS = {
 };
 ED.docTable = function () {
   var rows = ED.det.required.map(function (id) {
-    return '<div class="req-row"><span class="req-ic">' + BB.icon("file", 17) + "</span><span><b>" + BB_DOC_NAMES[id] + "</b><small>" + (ED.DOC_HINTS[id] || "") + "</small></span></div>";
+    var foodOnly = BB.FOOD_DOCS.indexOf(id) !== -1 && ED.ev.cats.length > 1;
+    return '<div class="req-row"><span class="req-ic">' + BB.icon("file", 17) + "</span><span><b>" + BB_DOC_NAMES[id] + (foodOnly ? ' <em class="req-tag">F&amp;B only</em>' : "") + "</b><small>" + (ED.DOC_HINTS[id] || "") + "</small></span></div>";
   }).join("");
   return '<div class="panel glass compact req-card"><div class="section-title"><span>Required documents</span><span class="chip">' + ED.det.required.length + "</span></div>" + rows +
     '<p class="muted req-note">' + BB.icon("upload", 14) + " You upload these when you apply. Files you upload once are saved for your next event.</p></div>";

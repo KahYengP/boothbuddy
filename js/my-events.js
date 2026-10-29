@@ -53,8 +53,7 @@ ME.deadlines = function (ev) {
 
 /* Packing checklist: one simple list in three short sections.
    Every event (the basics), For your booth (from the objects in your booth plan) and Your own items.
-   Tap an item to tick it. "Hide packed" leaves only what is still to pack. */
-ME.packHide = false;
+   Tap an item to tick it. */
 
 ME.packSections = function (plan) {
   var base = PL.baseCheck, seen = base.slice(), booth = [];
@@ -78,7 +77,6 @@ ME.packCard = function (ev) {
 
   var item = function (p, mine) {
     var i = all.indexOf(p), on = !!plan.checked[p];
-    if (on && ME.packHide) { return ""; }
     return '<li class="pc-item' + (on ? " is-done" : "") + '"><button class="pc-tick" data-pk="' + i + '" aria-pressed="' + on + '"><span class="pc-box">' + (on ? BB.icon("check") : "") + "</span>" + BB.escape(p) + "</button>" +
       (mine ? '<button class="pc-del" data-pkdel="' + i + '" aria-label="Remove ' + BB.escape(p) + '">' + BB.icon("x", 13) + "</button>" : "") + "</li>";
   };
@@ -91,8 +89,7 @@ ME.packCard = function (ev) {
   };
 
   return '<section class="panel glass pack-card" id="pack">' +
-    '<div class="pc-head"><div><h3>Packing list</h3><p>' + (done === all.length && all.length ? BB.icon("check", 15) + " Everything is packed" : done + " of " + all.length + " packed") + "</p></div>" +
-      '<div class="pc-actions"><button class="link-btn" id="pk-hide">' + (ME.packHide ? "Show packed" : "Hide packed") + '</button><a class="btn btn-small" href="booth-planner.html?event=' + ev.id + '">Edit booth plan</a></div></div>' +
+    '<div class="pc-head"><div><h3>Packing list</h3><p>' + (done === all.length && all.length ? BB.icon("check", 15) + " Everything is packed" : done + " of " + all.length + " packed") + "</p></div></div>" +
     '<div class="pc-bar"><i style="width:' + pct + '%"></i></div>' +
     secs.map(section).join("") + "</section>";
 };
@@ -116,8 +113,6 @@ ME.wirePack = function () {
     var plan = PL.load(ev.id), p = ME.packList[parseInt(b.getAttribute("data-pkdel"), 10)];
     plan.extraPack = plan.extraPack.filter(function (x) { return x !== p; }); delete plan.checked[p]; PL.save(ev.id, plan); ME.renderPack();
   }); });
-  var hide = document.getElementById("pk-hide");
-  if (hide) { hide.addEventListener("click", function () { ME.packHide = !ME.packHide; ME.renderPack(); }); }
   var f = document.getElementById("pack-add");
   if (f) { f.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -141,7 +136,7 @@ ME.goPack = function () {
 /* Your application: what you sent, the total, and Edit or Withdraw until applications close */
 ME.appCard = function (ev) {
   var a = BB.application(ev); if (!a) { return ""; }
-  var t = BB.boothType(a.booth), q = BB.quote(ev, a.booth, a.qty), req = BB_DETAILS[ev.id].required;
+  var t = BB.boothType(a.booth), q = BB.quote(ev, a.booth, a.qty), req = BB.docsFor(ev, a.category);
   var up = req.filter(function (id) { return a.files[id]; }).length, open = BB.canEdit(ev), left = BB.daysUntil(ev.closes);
   var docs = req.map(function (id) { var f = a.files[id]; return '<li class="' + (f ? "ok" : "miss") + '">' + BB.icon(f ? "check" : "x", 14) + "<span>" + BB_DOC_NAMES[id] + "<small>" + (f ? BB.escape(f.name) : "Not uploaded") + "</small></span></li>"; }).join("");
   return '<section class="panel glass app-card"><div class="section-title"><span>Your application</span>' +

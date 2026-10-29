@@ -553,13 +553,15 @@ PL.svg = function (plan, opts) {
   s += '<defs>' +
     '<pattern id="pg-fine" width="' + (U / 2) + '" height="' + (U / 2) + '" patternUnits="userSpaceOnUse"><path d="M ' + (U / 2) + ' 0 L 0 0 0 ' + (U / 2) + '" fill="none" stroke="rgba(80, 60, 90, 0.10)" stroke-width="0.6"/></pattern>' +
     '<pattern id="pg-cell" width="' + U + '" height="' + U + '" patternUnits="userSpaceOnUse"><rect width="' + U + '" height="' + U + '" fill="url(#pg-fine)"/><path d="M ' + U + ' 0 L 0 0 0 ' + U + '" fill="none" stroke="rgba(80, 60, 90, 0.22)" stroke-width="0.8"/></pattern>' +
-    '<pattern id="pg-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2E2233" stroke-width="1.4"/></pattern>' +
+    '<pattern id="pg-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="pg-hatch-line" x1="0" y1="0" x2="0" y2="6" stroke="#2E2233" stroke-width="1.4"/></pattern>' +
     '<marker id="pg-arrow" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#503A6B"/></marker>' +
     "</defs>";
   /* hall floor and aisle */
   s += '<rect x="' + vb[0] + '" y="' + vb[1] + '" width="' + vb[2] + '" height="' + vb[3] + '" fill="url(#pg-fine)"/>';
-  s += '<rect x="' + (-mL) + '" y="' + H + '" width="' + (W + mL + mR) + '" height="' + aisle + '" fill="rgba(255,255,255,0.35)"/>';
-  s += '<text x="' + (W + mR - 10) + '" y="' + (H + aisle - 10) + '" text-anchor="end" class="pg-label">AISLE</text>';
+  /* the aisle in front of the booth, where customers walk and queue. Drawn as a walkway, not a blocked area */
+  s += '<rect class="pg-aisle" x="' + (-mL) + '" y="' + H + '" width="' + (W + mL + mR) + '" height="' + aisle + '"/>';
+  s += '<line class="pg-aisle-edge" x1="' + (-mL) + '" y1="' + (H + aisle) + '" x2="' + (W + mR) + '" y2="' + (H + aisle) + '"/>';
+  s += '<text x="' + (W + mR - 10) + '" y="' + (H + aisle - 10) + '" text-anchor="end" class="pg-label pg-aisle-label">AISLE · CUSTOMERS WALK HERE</text>';
   /* neighbour booths, sketched */
   s += '<rect x="' + (-mL) + '" y="0" width="' + (mL - 6) + '" height="' + H + '" fill="none" stroke="rgba(70, 46, 78, 0.25)" stroke-dasharray="4 3"/>';
   s += '<rect x="' + (W + 6) + '" y="0" width="' + (mR - 6) + '" height="' + H + '" fill="none" stroke="rgba(70, 46, 78, 0.25)" stroke-dasharray="4 3"/>';
@@ -569,9 +571,9 @@ PL.svg = function (plan, opts) {
     /* no walls: just the edge of the booth space */
     s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="none" stroke="#2E2233" stroke-width="1.4" stroke-dasharray="6 4"/>';
   } else {
-    s += '<rect x="-6" y="-6" width="' + (W + 12) + '" height="6" fill="url(#pg-hatch)" stroke="#2E2233" stroke-width="1.2"/>';
-    s += '<rect x="-6" y="0" width="6" height="' + H + '" fill="url(#pg-hatch)" stroke="#2E2233" stroke-width="1.2"/>';
-    if (!PL.booth || PL.booth.open !== 2) { s += '<rect x="' + W + '" y="0" width="6" height="' + H + '" fill="url(#pg-hatch)" stroke="#2E2233" stroke-width="1.2"/>'; }
+    s += '<rect class="pg-wall" x="-6" y="-6" width="' + (W + 12) + '" height="6" fill="url(#pg-hatch)" stroke="#2E2233" stroke-width="1.2"/>';
+    s += '<rect class="pg-wall" x="-6" y="0" width="6" height="' + H + '" fill="url(#pg-hatch)" stroke="#2E2233" stroke-width="1.2"/>';
+    if (!PL.booth || PL.booth.open !== 2) { s += '<rect class="pg-wall" x="' + W + '" y="0" width="6" height="' + H + '" fill="url(#pg-hatch)" stroke="#2E2233" stroke-width="1.2"/>'; }
   }
   s += '<line x1="0" y1="' + H + '" x2="' + W + '" y2="' + H + '" stroke="#2E2233" stroke-width="1" stroke-dasharray="6 4"/>';
   /* dimensions */
